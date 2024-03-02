@@ -78,6 +78,8 @@ type
     class function GetWidth: SmallInt; static;
     class function GetRawAttributes: Word; static;
     class procedure SetRawAttributes(const Value: Word); static;
+    class function GetAttributes: TConsoleAttributes; static;
+    class procedure SetAttributes(const Value: TConsoleAttributes); static;
     class function GetCursorPosition: TCoord; static;
     class procedure SetCursorPosition(const Value: TCoord); static;
     class function GetCursorX: SmallInt; static;
@@ -104,6 +106,8 @@ type
     class property Height: SmallInt read GetHeight;
     class property RawAttributes: Word read GetRawAttributes
       write SetRawAttributes;
+    class property Attributes: TConsoleAttributes read GetAttributes
+      write SetAttributes;
     class property CursorPosition: TCoord read GetCursorPosition
       write SetCursorPosition;
     class property CursorX: SmallInt read GetCursorX write SetCursorX;
@@ -329,6 +333,11 @@ begin
   Result:=GetBufferInfo.wAttributes;
 end;
 
+class function TConsole.GetAttributes: TConsoleAttributes;
+begin
+  Result:=TConsoleAttributes.Create(RawAttributes);
+end;
+
 class function TConsole.GetBgColor: TConsoleColor;
 begin
   Result:=TConsoleAttributes.ExtractBgColor(RawAttributes)
@@ -395,6 +404,11 @@ end;
 class function TConsole.GetWidth: SmallInt;
 begin
   Result:=GetBufferInfo.dwSize.X;
+end;
+
+class procedure TConsole.SetAttributes(const Value: TConsoleAttributes);
+begin
+  //...
 end;
 
 class procedure TConsole.SetBgColor(const Value: TConsoleColor);
