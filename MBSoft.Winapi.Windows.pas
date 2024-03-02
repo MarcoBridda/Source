@@ -53,8 +53,8 @@ type
     constructor Create(const aFgColor, aBgColor: TConsoleColor); overload;
     constructor Create(const aRawAttributes: Word); overload;
 
-    class function GetFgColor(const aRawAttributes: Word): TConsoleColor; static;
-    class function GetBgColor(const aRawAttributes: Word): TConsoleColor; static;
+    class function ExtractFgColor(const aRawAttributes: Word): TConsoleColor; static;
+    class function ExtractBgColor(const aRawAttributes: Word): TConsoleColor; static;
   end;
 
   TConsole = record
@@ -329,7 +329,7 @@ end;
 
 class function TConsole.GetBgColor: TConsoleColor;
 begin
-  Result:=TConsoleAttributes.GetBgColor(RawAttributes)
+  Result:=TConsoleAttributes.ExtractBgColor(RawAttributes)
 end;
 
 class function TConsole.GetBufferInfo: TConsoleScreenBufferInfo;
@@ -362,7 +362,7 @@ end;
 
 class function TConsole.GetFgColor: TConsoleColor;
 begin
-  Result:=TConsoleAttributes.GetFgColor(RawAttributes)
+  Result:=TConsoleAttributes.ExtractFgColor(RawAttributes)
 end;
 
 class function TConsole.GetHeight: SmallInt;
@@ -466,17 +466,17 @@ end;
 
 constructor TConsoleAttributes.Create(const aRawAttributes: Word);
 begin
-  FgColor:=TConsoleAttributes.GetFgColor(aRawAttributes);
-  BgColor:=TConsoleAttributes.GetBgColor(aRawAttributes);
+  FgColor:=TConsoleAttributes.ExtractFgColor(aRawAttributes);
+  BgColor:=TConsoleAttributes.ExtractBgColor(aRawAttributes);
 end;
 
-class function TConsoleAttributes.GetBgColor(
+class function TConsoleAttributes.ExtractBgColor(
   const aRawAttributes: Word): TConsoleColor;
 begin
   Result:=TConsoleColor((aRawAttributes and $F0) shr 4)
 end;
 
-class function TConsoleAttributes.GetFgColor(
+class function TConsoleAttributes.ExtractFgColor(
   const aRawAttributes: Word): TConsoleColor;
 begin
   Result:=TConsoleColor(aRawAttributes and $F)
