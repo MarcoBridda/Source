@@ -77,6 +77,7 @@ type
     class function GetSize: TCoord; static;
     class function GetWidth: SmallInt; static;
     class function GetRawAttributes: Word; static;
+    class procedure SetRawAttributes(const Value: Word); static;
     class function GetCursorPosition: TCoord; static;
     class procedure SetCursorPosition(const Value: TCoord); static;
     class function GetCursorX: SmallInt; static;
@@ -101,7 +102,8 @@ type
     class property Size: TCoord read GetSize;
     class property Width: SmallInt read GetWidth;
     class property Height: SmallInt read GetHeight;
-    class property RawAttributes: Word read GetRawAttributes;
+    class property RawAttributes: Word read GetRawAttributes
+      write SetRawAttributes;
     class property CursorPosition: TCoord read GetCursorPosition
       write SetCursorPosition;
     class property CursorX: SmallInt read GetCursorX write SetCursorX;
@@ -424,6 +426,11 @@ var
 begin
   Attrib:=(RawAttributes and $FFF0) or Word(Value);
   Win32Check(SetConsoleTextAttribute(FStdOut,Attrib));
+end;
+
+class procedure TConsole.SetRawAttributes(const Value: Word);
+begin
+  Win32Check(SetConsoleTextAttribute(FStdOut,Value));
 end;
 
 { TMBCoordHelper }
