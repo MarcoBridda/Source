@@ -35,9 +35,9 @@ type
   TConsoleColorHelper = record helper for TConsoleColor
   private const
     CONSOLE_COLOR_STRINGS: array[TConsoleColor] of String = ('Black', 'Blue',
-    'Green', 'Cyan', 'Red', 'Magenta', 'Brown', 'Lightgray', 'DarkGray',
-    'LightBlue', 'LightGreen', 'LightCyan', 'LightRed', 'LightMagenta',
-    'Yellow', 'White');
+      'Green', 'Cyan', 'Red', 'Magenta', 'Brown', 'Lightgray', 'DarkGray',
+      'LightBlue', 'LightGreen', 'LightCyan', 'LightRed', 'LightMagenta',
+      'Yellow', 'White');
   public
     function ToString: String;
 
@@ -140,14 +140,25 @@ type
   //Per comodità di debug definisco anche tre helper per avere la versione
   //stampabile dei tipi definiti sopra
   TDateEncodingFormatHelper = record helper for TDateEncodingFormat
+  private const
+    DATE_ENCODING_FORMAT_STRINGS: array[TDateEncodingFormat] of String = (
+      'Unknow', 'Absolute', 'Relative', 'Error');
+  public
     function ToString: String;
   end;
 
   TOrdinalDayOfWeekHelper = record helper for TOrdinalDayOfWeek
+  private const
+    ORDINAL_DAY_OF_WEEK_STRINGS: array[TOrdinalDayOfWeek] of String = (
+      'Unknow', 'First', 'Second', 'Third', 'Forth', 'Last', 'Error');
+  public
     function ToString: String;
   end;
 
   TTimeZoneIdHelper = record helper for TTimeZoneId
+  private const
+    TIME_ZONE_ID_STRINGS: array[TTimeZoneId] of String = ('Unknow',
+      'Standard', 'DayLight', 'Error');
     function ToString: String;
   end;
 
@@ -466,19 +477,6 @@ begin
       end;
   end;
 end;
-
-const
-  //Stringe per il metodo ToString del TDateEncodingFormatHelper
-  DATE_ENCODING_FORMAT_STRINGS: array[TDateEncodingFormat] of String = (
-    'Unknow', 'Absolute', 'Relative', 'Error');
-
-  //Stringe per il metodo ToString del TOrdinalDayOfWeekHelper
-  ORDINAL_DAY_OF_WEEK_STRINGS: array[TOrdinalDayOfWeek] of String = (
-    'Unknow', 'First', 'Second', 'Third', 'Forth', 'Last', 'Error');
-
-  //Stringe per il metodo ToString del TTimeZoneIdHelper
-  TIME_ZONE_ID_STRINGS: array[TTimeZoneId] of String = ('Unknow',
-    'Standard', 'DayLight', 'Error');
 
 { TTimeZoneBias }
 
