@@ -398,11 +398,8 @@ begin
 end;
 
 class procedure TConsole.SetBgColor(const Value: TConsoleColor);
-var
-  Attrib: Word;
 begin
-  Attrib:=(RawAttributes and $FF0F) or (Word(Value) shl 4);
-  Win32Check(SetConsoleTextAttribute(FStdOut,Attrib));
+  RawAttributes:=(RawAttributes and $FF0F) or (Word(Value) shl 4);
 end;
 
 class procedure TConsole.SetCursorPosition(const Value: TCoord);
@@ -421,11 +418,8 @@ begin
 end;
 
 class procedure TConsole.SetFgColor(const Value: TConsoleColor);
-var
-  Attrib: Word;
 begin
-  Attrib:=(RawAttributes and $FFF0) or Word(Value);
-  Win32Check(SetConsoleTextAttribute(FStdOut,Attrib));
+  RawAttributes:=(RawAttributes and $FFF0) or Word(Value);
 end;
 
 class procedure TConsole.SetRawAttributes(const Value: Word);
