@@ -46,10 +46,15 @@ type
 
   //Una struttura per gli attributi in formato TConsoleColor
   TConsoleAttributes = record
+  public
     FgColor: TConsoleColor;
     BgColor: TConsoleColor;
 
-    constructor Create(const aFgColor, aBgColor: TConsoleColor);
+    constructor Create(const aFgColor, aBgColor: TConsoleColor); overload;
+    constructor Create(const aRawAttributes: Word); overload;
+
+    class function GetFgColor(const aRawAttributes: Word): TConsoleColor; static;
+    class function GetBgColor(const aRawAttributes: Word): TConsoleColor; static;
   end;
 
   TConsole = record
@@ -71,7 +76,7 @@ type
     class function GetHeight: SmallInt; static;
     class function GetSize: TCoord; static;
     class function GetWidth: SmallInt; static;
-    class function GetAttributes: Word; static;
+    class function GetRawAttributes: Word; static;
     class function GetCursorPosition: TCoord; static;
     class procedure SetCursorPosition(const Value: TCoord); static;
     class function GetCursorX: SmallInt; static;
@@ -96,7 +101,7 @@ type
     class property Size: TCoord read GetSize;
     class property Width: SmallInt read GetWidth;
     class property Height: SmallInt read GetHeight;
-    class property Attributes: Word read GetAttributes;
+    class property RawAttributes: Word read GetRawAttributes;
     class property CursorPosition: TCoord read GetCursorPosition
       write SetCursorPosition;
     class property CursorX: SmallInt read GetCursorX write SetCursorX;
@@ -288,7 +293,7 @@ begin
 
   Win32Check(FillConsoleOutputCharacter(FStdOut, ' ', Area, Origin,
     NumWritten));
-  Win32Check(FillConsoleOutputAttribute(FStdOut, Attributes, Area, Origin,
+  Win32Check(FillConsoleOutputAttribute(FStdOut, RawAttributes, Area, Origin,
     NumWritten));
   CursorPosition:=Origin
 end;
@@ -302,7 +307,7 @@ end;
 
 class procedure TConsole.ClrScr;
 begin
-  ClearScreen(TConsole.Attributes)
+  ClearScreen(TConsole.RawAttributes)
 end;
 
 class procedure TConsole.ClrScr(aAttributes: Integer);
@@ -317,14 +322,14 @@ begin
   FStdError:=GetStdError(true);
 end;
 
-class function TConsole.GetAttributes: Word;
+class function TConsole.GetRawAttributes: Word;
 begin
   Result:=GetBufferInfo.wAttributes;
 end;
 
 class function TConsole.GetBgColor: TConsoleColor;
 begin
-  Result:=TConsoleColor((GetAttributes and $F0) shr 4)
+  Result:=TConsoleAttributes.GetBgColor(RawAttributes)
 end;
 
 class function TConsole.GetBufferInfo: TConsoleScreenBufferInfo;
@@ -357,7 +362,7 @@ end;
 
 class function TConsole.GetFgColor: TConsoleColor;
 begin
-  Result:=TConsoleColor(GetAttributes and $F)
+  Result:=TConsoleAttributes.GetFgColor(RawAttributes)
 end;
 
 class function TConsole.GetHeight: SmallInt;
@@ -394,7 +399,7 @@ class procedure TConsole.SetBgColor(const Value: TConsoleColor);
 var
   Attrib: Word;
 begin
-  Attrib:=(Attributes and $FF0F) or (Word(Value) shl 4);
+  Attrib:=(RawAttributes and $FF0F) or (Word(Value) shl 4);
   Win32Check(SetConsoleTextAttribute(FStdOut,Attrib));
 end;
 
@@ -417,7 +422,7 @@ class procedure TConsole.SetFgColor(const Value: TConsoleColor);
 var
   Attrib: Word;
 begin
-  Attrib:=(Attributes and $FFF0) or Word(Value);
+  Attrib:=(RawAttributes and $FFF0) or Word(Value);
   Win32Check(SetConsoleTextAttribute(FStdOut,Attrib));
 end;
 
@@ -457,6 +462,24 @@ constructor TConsoleAttributes.Create(const aFgColor, aBgColor: TConsoleColor);
 begin
   FgColor:=aFgColor;
   BgColor:=aBgColor
+end;
+
+constructor TConsoleAttributes.Create(const aRawAttributes: Word);
+begin
+  FgColor:=TConsoleAttributes.GetFgColor(aRawAttributes);
+  BgColor:=TConsoleAttributes.GetBgColor(aRawAttributes);
+end;
+
+class function TConsoleAttributes.GetBgColor(
+  const aRawAttributes: Word): TConsoleColor;
+begin
+  Result:=TConsoleColor((aRawAttributes and $F0) shr 4)
+end;
+
+class function TConsoleAttributes.GetFgColor(
+  const aRawAttributes: Word): TConsoleColor;
+begin
+  Result:=TConsoleColor(aRawAttributes and $F)
 end;
 
 { TVSFixedFileInfoHelper }
