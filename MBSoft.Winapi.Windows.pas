@@ -33,6 +33,12 @@ type
     ccLightCyan, ccLightRed, ccLightMagenta, ccYellow, ccWhite);
 
   TConsoleColorHelper = record helper for TConsoleColor
+  private const
+    CONSOLE_COLOR_STRINGS: array[TConsoleColor] of String = ('Black', 'Blue',
+    'Green', 'Cyan', 'Red', 'Magenta', 'Brown', 'Lightgray', 'DarkGray',
+    'LightBlue', 'LightGreen', 'LightCyan', 'LightRed', 'LightMagenta',
+    'Yellow', 'White');
+  public
     function ToString: String;
 
     class operator Implicit(Color: TConsoleColor): String;
@@ -242,13 +248,6 @@ implementation
 
 uses
   System.Types;
-
-const
-  //Stringhe per il metodo ToString del TConsoleColorHelper
-  CONSOLE_COLOR_STRINGS: array[TConsoleColor] of String = ('Black', 'Blue',
-    'Green', 'Cyan', 'Red', 'Magenta', 'Brown', 'Lightgray', 'DarkGray',
-    'LightBlue', 'LightGreen', 'LightCyan', 'LightRed', 'LightMagenta',
-    'Yellow', 'White');
 
 { TConsole }
 
