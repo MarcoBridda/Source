@@ -44,6 +44,14 @@ type
     class operator Implicit(Color: TConsoleColor): String;
   end;
 
+  //Una struttura per gli attributi in formato TConsoleColor
+  TConsoleAttributes = record
+    FgColor: TConsoleColor;
+    BgColor: TConsoleColor;
+
+    constructor Create(const aFgColor, aBgColor: TConsoleColor);
+  end;
+
   TConsole = record
   private
     class var
@@ -51,6 +59,7 @@ type
       FStdOut: THandle;
       FStdError: THandle;
 
+  private
     class function GetCheckStdHandle(nStdHandle: Cardinal;
       aCheck: Boolean): NativeUInt; static;
 
@@ -440,6 +449,14 @@ end;
 function TConsoleColorHelper.ToString: String;
 begin
   Result:=CONSOLE_COLOR_STRINGS[Self]
+end;
+
+{ TConsoleAttributes }
+
+constructor TConsoleAttributes.Create(const aFgColor, aBgColor: TConsoleColor);
+begin
+  FgColor:=aFgColor;
+  BgColor:=aBgColor
 end;
 
 { TVSFixedFileInfoHelper }
