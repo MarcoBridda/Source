@@ -21,11 +21,34 @@ const
 //****************************************************************************
 
 type
-  TMBCoordHelper = record helper for TCoord
+  TCoordHelper = record helper for TCoord
+  public
     constructor Create(X, Y: SmallInt);
     function ToString: String;
 
     class operator Implicit(Coord: TCoord): String;
+  end;
+
+  TSmallRectHelper = record helper for TSmallRect
+  private
+    function GetArea: Cardinal;
+    function GetHeight: SmallInt;
+    function GetWidth: SmallInt;
+    procedure SetHeight(const Value: SmallInt);
+    procedure SetWidth(const Value: SmallInt);
+    function GetLeftTop: TCoord;
+    function GetRightBottom: TCoord;
+  public
+    constructor Create(const aLeft, aTop, aRight, aBottom: SmallInt); overload;
+    constructor Create(const aLeftTop, aRightBottom: TCoord); overload;
+
+    property Width: SmallInt read GetWidth write SetWidth;
+    property Height: SmallInt read GetHeight write SetHeight;
+
+    property Area: Cardinal read GetArea;
+
+    property LeftTop: TCoord read GetLeftTop;
+    property RightBottom: TCoord read GetRightBottom;
   end;
 
   TConsoleColor = (ccBlack, ccBlue, ccGreen, ccCyan, ccRed, ccMagenta,
@@ -92,7 +115,8 @@ type
     class procedure SetCursorX(const Value: SmallInt); static;
     class procedure SetCursorY(const Value: Smallint); static;
 
-    class procedure ClearScreen(aAttributes: Integer = -1); static;
+    class procedure ClearRect(const aRect: TSmallRect; const aAttributes: TConsoleAttributes); static;
+
     class function GetBgColor: TConsoleColor; static;
     class function GetFgColor: TConsoleColor; static;
     class procedure SetBgColor(const Value: TConsoleColor); static;
@@ -101,8 +125,8 @@ type
     class constructor Create;
 
     class procedure ClrScr; overload; static;
-    class procedure ClrScr(aAttributes: Integer); overload; static;
-    class procedure ClrScr(const aBgColor, aFgColor: TConsoleColor); overload; static;
+    class procedure ClrScr(const aAttributes: TConsoleAttributes); overload; static;
+    class procedure ClrScr(const aFgColor, aBgColor: TConsoleColor); overload; static;
     class function Area: DWORD; static;
 
     class property BufferInfo: TConsoleScreenBufferInfo read GetBufferInfo;
@@ -292,38 +316,36 @@ begin
   Result:=Size.X*Size.Y
 end;
 
-class procedure TConsole.ClearScreen(aAttributes: Integer);
+class procedure TConsole.ClearRect(const aRect: TSmallRect;
+  const aAttributes: TConsoleAttributes);
 var
-  NumWritten: DWORD;
-  Origin: TCoord;
+  CharCount: Cardinal;
 begin
-  if (aAttributes>=0) and (aAttributes<=255) then
-    SetConsoleTextAttribute(FStdOut,aAttributes);
+  Attributes:=aAttributes;
 
-  Origin:=TCoord.Create(0,0);
-
-  Win32Check(FillConsoleOutputCharacter(FStdOut, ' ', Area, Origin,
-    NumWritten));
-  Win32Check(FillConsoleOutputAttribute(FStdOut, RawAttributes, Area, Origin,
-    NumWritten));
-  CursorPosition:=Origin
+  Win32Check(FillConsoleOutputCharacter(FStdOut, ' ', Area, aRect.LeftTop,
+    CharCount));
+  Win32Check(FillConsoleOutputAttribute(FStdOut, RawAttributes, Area, aRect.LeftTop,
+    CharCount));
+  CursorPosition:=aRect.LeftTop
 end;
 
-class procedure TConsole.ClrScr(const aBgColor, aFgColor: TConsoleColor);
+class procedure TConsole.ClrScr(const aFgColor, aBgColor: TConsoleColor);
 begin
-  TConsole.BgColor:=aBgColor;
-  TConsole.FgColor:=aFgColor;
-  TConsole.ClrScr
+  ClrScr(TConsoleAttributes.Create(aFgColor, aBgColor))
 end;
 
 class procedure TConsole.ClrScr;
 begin
-  ClearScreen(TConsole.RawAttributes)
+  ClrScr(Attributes)
 end;
 
-class procedure TConsole.ClrScr(aAttributes: Integer);
+class procedure TConsole.ClrScr(const aAttributes: TConsoleAttributes);
+var
+  Rect: TSmallRect;
 begin
-  ClearScreen(aAttributes)
+  Rect:=TSmallRect.Create(0, 0, Width, Height);
+  ClearRect(Rect, aAttributes)
 end;
 
 class constructor TConsole.Create;
@@ -448,20 +470,71 @@ end;
 
 { TMBCoordHelper }
 
-constructor TMBCoordHelper.Create(X, Y: SmallInt);
+constructor TCoordHelper.Create(X, Y: SmallInt);
 begin
   Self.X:=X;
   Self.Y:=Y;
 end;
 
-class operator TMBCoordHelper.Implicit(Coord: TCoord): String;
+class operator TCoordHelper.Implicit(Coord: TCoord): String;
 begin
   Result:=Coord.ToString
 end;
 
-function TMBCoordHelper.ToString: String;
+function TCoordHelper.ToString: String;
 begin
   Result:='('+Self.X.ToString+','+Self.Y.ToString+')'
+end;
+
+{ TSmallRectHelper }
+
+constructor TSmallRectHelper.Create(const aLeftTop, aRightBottom: TCoord);
+begin
+  Create(aLeftTop.X, aLeftTop.Y, aRightBottom.X, aRightBottom.Y)
+end;
+
+function TSmallRectHelper.GetArea: Cardinal;
+begin
+  Result:=Self.Width * Self.Height;
+end;
+
+function TSmallRectHelper.GetHeight: SmallInt;
+begin
+  Result:=Self.Bottom - Self.Top;
+end;
+
+function TSmallRectHelper.GetLeftTop: TCoord;
+begin
+  Result:=TCoord.Create(Self.Left, Self.Top)
+end;
+
+function TSmallRectHelper.GetRightBottom: TCoord;
+begin
+  Result:=TCoord.Create(Self.Right, Self.Bottom)
+end;
+
+function TSmallRectHelper.GetWidth: SmallInt;
+begin
+  Result:=Self.Right - Self.Left
+end;
+
+procedure TSmallRectHelper.SetHeight(const Value: SmallInt);
+begin
+  Inc(Self.Bottom,Value-Height)
+end;
+
+procedure TSmallRectHelper.SetWidth(const Value: SmallInt);
+begin
+  Inc(Self.Right,Value-Width)
+end;
+
+constructor TSmallRectHelper.Create(const aLeft, aTop, aRight,
+  aBottom: SmallInt);
+begin
+  Self.Left:=aLeft;
+  Self.Top:=aTop;
+  Self.Right:=aRight;
+  Self.Bottom:=aBottom
 end;
 
 { TConsoleColorRecordHelper }
