@@ -53,8 +53,13 @@ type
     constructor Create(const aFgColor, aBgColor: TConsoleColor); overload;
     constructor Create(const aRawAttributes: Word); overload;
 
+    function ChangeRawAttributes(const aRawAttributes: Word): Word;
+
     class function ExtractFgColor(const aRawAttributes: Word): TConsoleColor; static;
     class function ExtractBgColor(const aRawAttributes: Word): TConsoleColor; static;
+
+    class function ChangeRawFgColor(const aRawAttributes: Word; const Color: TConsoleColor): Word; static;
+    class function ChangeRawBgColor(const aRawAttributes: Word; const Color: TConsoleColor): Word; static;
   end;
 
   TConsole = record
@@ -408,12 +413,13 @@ end;
 
 class procedure TConsole.SetAttributes(const Value: TConsoleAttributes);
 begin
-  //...
+  RawAttributes:=Value.ChangeRawAttributes(RawAttributes)
 end;
 
 class procedure TConsole.SetBgColor(const Value: TConsoleColor);
 begin
-  RawAttributes:=(RawAttributes and $FF0F) or (Word(Value) shl 4);
+  //RawAttributes:=(RawAttributes and $FF0F) or (Word(Value) shl 4);
+  RawAttributes:=TConsoleAttributes.ChangeRawBgColor(RawAttributes, Value)
 end;
 
 class procedure TConsole.SetCursorPosition(const Value: TCoord);
@@ -433,7 +439,8 @@ end;
 
 class procedure TConsole.SetFgColor(const Value: TConsoleColor);
 begin
-  RawAttributes:=(RawAttributes and $FFF0) or Word(Value);
+  //RawAttributes:=(RawAttributes and $FFF0) or Word(Value);
+  RawAttributes:=TConsoleAttributes.ChangeRawFgColor(RawAttributes, Value)
 end;
 
 class procedure TConsole.SetRawAttributes(const Value: Word);
@@ -477,6 +484,25 @@ constructor TConsoleAttributes.Create(const aFgColor, aBgColor: TConsoleColor);
 begin
   FgColor:=aFgColor;
   BgColor:=aBgColor
+end;
+
+function TConsoleAttributes.ChangeRawAttributes(
+  const aRawAttributes: Word): Word;
+begin
+  Result:=TConsoleAttributes.ChangeRawFgColor(aRawAttributes, Self.FgColor);
+  Result:=TConsoleAttributes.ChangeRawBgColor(Result,Self.BgColor);
+end;
+
+class function TConsoleAttributes.ChangeRawBgColor(
+  const aRawAttributes: Word; const Color: TConsoleColor): Word;
+begin
+  Result:=(aRawAttributes and $FF0F) or (Word(Color) shl 4);
+end;
+
+class function TConsoleAttributes.ChangeRawFgColor(
+  const aRawAttributes: Word; const Color: TConsoleColor): Word;
+begin
+  Result:=(aRawAttributes and $FFF0) or Word(Color);
 end;
 
 constructor TConsoleAttributes.Create(const aRawAttributes: Word);
