@@ -418,7 +418,6 @@ end;
 
 class procedure TConsole.SetBgColor(const Value: TConsoleColor);
 begin
-  //RawAttributes:=(RawAttributes and $FF0F) or (Word(Value) shl 4);
   RawAttributes:=TConsoleAttributes.ChangeRawBgColor(RawAttributes, Value)
 end;
 
@@ -439,7 +438,6 @@ end;
 
 class procedure TConsole.SetFgColor(const Value: TConsoleColor);
 begin
-  //RawAttributes:=(RawAttributes and $FFF0) or Word(Value);
   RawAttributes:=TConsoleAttributes.ChangeRawFgColor(RawAttributes, Value)
 end;
 
