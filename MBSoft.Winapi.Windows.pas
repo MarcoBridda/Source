@@ -96,30 +96,37 @@ type
     class function GetCheckStdHandle(nStdHandle: Cardinal;
       aCheck: Boolean): NativeUInt; static;
 
-    class function GetStdOut(aCheck: Boolean = false): THandle; static;
     class function GetStdIn(aCheck: Boolean = false): THandle; static;
+    class function GetStdOut(aCheck: Boolean = false): THandle; static;
     class function GetStdError(aCheck: Boolean = false): THandle; static;
 
     class function GetBufferInfo: TConsoleScreenBufferInfo; static;
+
+    class function GetWidth: SmallInt; static;
     class function GetHeight: SmallInt; static;
     class function GetSize: TCoord; static;
-    class function GetWidth: SmallInt; static;
+
     class function GetRawAttributes: Word; static;
     class procedure SetRawAttributes(const Value: Word); static;
+
     class function GetAttributes: TConsoleAttributes; static;
     class procedure SetAttributes(const Value: TConsoleAttributes); static;
+
     class function GetCursorPosition: TCoord; static;
     class procedure SetCursorPosition(const Value: TCoord); static;
+
     class function GetCursorX: SmallInt; static;
-    class function GetCursorY: Smallint; static;
     class procedure SetCursorX(const Value: SmallInt); static;
+
+    class function GetCursorY: Smallint; static;
     class procedure SetCursorY(const Value: Smallint); static;
 
     class procedure ClearRect(const aRect: TSmallRect; const aAttributes: TConsoleAttributes); static;
 
     class function GetBgColor: TConsoleColor; static;
-    class function GetFgColor: TConsoleColor; static;
     class procedure SetBgColor(const Value: TConsoleColor); static;
+
+    class function GetFgColor: TConsoleColor; static;
     class procedure SetFgColor(const Value: TConsoleColor); static;
   public
     class constructor Create;
@@ -127,16 +134,25 @@ type
     class procedure ClrScr; overload; static;
     class procedure ClrScr(const aAttributes: TConsoleAttributes); overload; static;
     class procedure ClrScr(const aFgColor, aBgColor: TConsoleColor); overload; static;
+
     class function Area: DWORD; static;
 
+    class property StdIn: THandle read FStdIn;
+    class property StdOut: THandle read FStdOut;
+    class property StdError: THandle read FStdError;
+
     class property BufferInfo: TConsoleScreenBufferInfo read GetBufferInfo;
-    class property Size: TCoord read GetSize;
+
     class property Width: SmallInt read GetWidth;
     class property Height: SmallInt read GetHeight;
+    class property Size: TCoord read GetSize;
+
     class property RawAttributes: Word read GetRawAttributes
       write SetRawAttributes;
+
     class property Attributes: TConsoleAttributes read GetAttributes
       write SetAttributes;
+
     class property CursorPosition: TCoord read GetCursorPosition
       write SetCursorPosition;
     class property CursorX: SmallInt read GetCursorX write SetCursorX;
@@ -144,10 +160,6 @@ type
 
     class property BgColor: TConsoleColor read GetBgColor write SetBgColor;
     class property FgColor: TConsoleColor read GetFgColor write SetFgColor;
-
-    class property StdIn: THandle read FStdIn;
-    class property StdOut: THandle read FStdOut;
-    class property StdError: THandle read FStdError;
   end;
 
 //****************************************************************************
