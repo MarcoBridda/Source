@@ -135,6 +135,10 @@ type
     class procedure ClrScr(const aAttributes: TConsoleAttributes); overload; static;
     class procedure ClrScr(const aFgColor, aBgColor: TConsoleColor); overload; static;
 
+    class procedure ClrEOL; overload; static;
+    class procedure ClrEOL(const aAttributes: TConsoleAttributes); overload; static;
+    class procedure ClrEOL(const aFgColor, aBgColor: TConsoleColor); overload; static;
+
     class function Area: DWORD; static;
 
     class property StdIn: THandle read FStdIn;
@@ -335,11 +339,29 @@ var
 begin
   Attributes:=aAttributes;
 
-  Win32Check(FillConsoleOutputCharacter(FStdOut, ' ', Area, aRect.LeftTop,
+  Win32Check(FillConsoleOutputCharacter(FStdOut, ' ', aRect.Area, aRect.LeftTop,
     CharCount));
-  Win32Check(FillConsoleOutputAttribute(FStdOut, RawAttributes, Area, aRect.LeftTop,
+  Win32Check(FillConsoleOutputAttribute(FStdOut, RawAttributes, aRect.Area, aRect.LeftTop,
     CharCount));
   CursorPosition:=aRect.LeftTop
+end;
+
+class procedure TConsole.ClrEOL;
+begin
+  ClrEOL(Attributes)
+end;
+
+class procedure TConsole.ClrEOL(const aAttributes: TConsoleAttributes);
+var
+  Rect: TSmallRect;
+begin
+  Rect:=TSmallRect.Create(CursorX, CursorY, Width, CursorY);
+  ClearRect(Rect, aAttributes)
+end;
+
+class procedure TConsole.ClrEOL(const aFgColor, aBgColor: TConsoleColor);
+begin
+  ClrEOL(TConsoleAttributes.Create(aFgColor, aBgColor))
 end;
 
 class procedure TConsole.ClrScr(const aFgColor, aBgColor: TConsoleColor);
@@ -512,7 +534,7 @@ end;
 
 function TSmallRectHelper.GetHeight: SmallInt;
 begin
-  Result:=Self.Bottom - Self.Top;
+  Result:=Self.Bottom - Self.Top + 1;
 end;
 
 function TSmallRectHelper.GetLeftTop: TCoord;
@@ -527,7 +549,7 @@ end;
 
 function TSmallRectHelper.GetWidth: SmallInt;
 begin
-  Result:=Self.Right - Self.Left
+  Result:=Self.Right - Self.Left + 1
 end;
 
 procedure TSmallRectHelper.SetHeight(const Value: SmallInt);
