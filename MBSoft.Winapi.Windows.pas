@@ -128,6 +128,8 @@ type
 
     class function GetFgColor: TConsoleColor; static;
     class procedure SetFgColor(const Value: TConsoleColor); static;
+    class function GetMaxX: SmallInt; static;
+    class function GetMaxY: SmallInt; static;
   public
     class constructor Create;
 
@@ -149,6 +151,10 @@ type
 
     class property Width: SmallInt read GetWidth;
     class property Height: SmallInt read GetHeight;
+
+    class property MaxX: SmallInt read GetMaxX;
+    class property MaxY: SmallInt read GetMaxY;
+
     class property Size: TCoord read GetSize;
 
     class property RawAttributes: Word read GetRawAttributes
@@ -355,7 +361,7 @@ class procedure TConsole.ClrEOL(const aAttributes: TConsoleAttributes);
 var
   Rect: TSmallRect;
 begin
-  Rect:=TSmallRect.Create(CursorX, CursorY, Width, CursorY);
+  Rect:=TSmallRect.Create(CursorX, CursorY, MaxX, CursorY);
   ClearRect(Rect, aAttributes)
 end;
 
@@ -440,6 +446,16 @@ end;
 class function TConsole.GetHeight: SmallInt;
 begin
   Result:=GetBufferInfo.dwSize.Y;
+end;
+
+class function TConsole.GetMaxX: SmallInt;
+begin
+  Result:=Width-1
+end;
+
+class function TConsole.GetMaxY: SmallInt;
+begin
+  Result:=Height-1
 end;
 
 class function TConsole.GetSize: TCoord;
