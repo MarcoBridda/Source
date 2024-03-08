@@ -13,7 +13,7 @@ uses
   MBSoft.System, MBSoft.System.DateUtils;
 
 const
-  LIB_VERSION: TProductFileVersion = (Major: 1; Minor: 0; Build: 0; Release: 0);
+  LIB_VERSION: TProductFileVersion = (Major: 1; Minor: 1; Build: 0; Release: 0);
 
 //****************************************************************************
 //Supporto esteso alla console, un po' più Delphi friendly...
