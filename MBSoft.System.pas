@@ -48,8 +48,10 @@ type
     class procedure SaveToFile(FileName: TFileName); static;
     class procedure LoadFromFile(FileName: TFileName); static;
 
-    class function ToArray(aStart: Integer = 0): TStringDynArray; overload;
-    class function ToArray(aStart, aLength: Integer): TStringDynArray; overload;
+    class function ToArray(aStart: Integer = 0): TStringDynArray;
+      overload; static;
+    class function ToArray(aStart, aLength: Integer): TStringDynArray;
+      overload; static;
 
     class property Count: Integer read GetCount;
     class property Param[Index: Integer]: String read GetParam;
