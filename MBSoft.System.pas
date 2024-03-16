@@ -48,8 +48,8 @@ type
     class procedure SaveToFile(FileName: TFileName); static;
     class procedure LoadFromFile(FileName: TFileName); static;
 
-    class function ToArray(const Start: Integer = 0): TStringDynArray; overload;
-    class function ToArray(const Start, Count: Integer): TStringDynArray; overload;
+    class function ToArray(aStart: Integer = 0): TStringDynArray; overload;
+    class function ToArray(aStart, aLength: Integer): TStringDynArray; overload;
 
     class property Count: Integer read GetCount;
     class property Param[Index: Integer]: String read GetParam;
@@ -227,6 +227,28 @@ end;
 class procedure TMBCmdLine.SetParamsMode(Value: TMBCmdParamsMode);
 begin
   FParamsMode:=Value
+end;
+
+class function TMBCmdLine.ToArray(aStart, aLength: Integer): TStringDynArray;
+var
+  Index: Integer;
+begin
+  //Correggiamo se gli argomenti passati non sono conformi
+  if aStart<0 then
+    aStart:=0;
+
+  if (aLength<1) or (aStart+aLength>Count+1) then
+    aLength:=Count+1-aStart;
+
+  //Ora facciamo l'array
+  SetLength(Result,aLength);
+  for Index:=aStart to aStart+aLength-1 do
+    Result[Index-aStart]:=Param[Index]
+end;
+
+class function TMBCmdLine.ToArray(aStart: Integer): TStringDynArray;
+begin
+  Result:=ToArray(aStart,-1); //Lunghezza non valida così si sistema da solo
 end;
 
 { TRandom }
