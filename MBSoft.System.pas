@@ -2,18 +2,13 @@ unit MBSoft.System;
 //******************************************************************************
 //Aggiunte alla Unit System
 //
-//Copyright MBSoft(2020-2023)
+//Copyright MBSoft(2020-2024)
 //******************************************************************************
 
 interface
 
 uses
   System.Math, System.SysUtils, System.Types, System.SyncObjs;
-
-const
-  //Estensione per il file con la lista dei parametri
-  //(vedi TMBCommandLine.SaveToFile)
-  PARAMS_LIST_EXT = '.pal';
 
 type
   //Eccezioni
@@ -22,28 +17,35 @@ type
 
   //Origine dei parametri della riga di comando. Vedi piu sotto il record
   //TMBCommandLine e ,nella unit MBSoft.Vcl.Forms, L'helper TMBVclAppHelper
-  TMBCmdParamsMode = (pmCommandLine, pmLoaded);
+  TMBCmdArgumentsMode = (amCommandLine, amLoaded);
 
   //Una struttura per gestire meglio i parametri passati sulla linea di comando
+  //Per uniformarmi alla nomenclatura di Windows Terminal e di altre app CLI
+  //che possono essere invocate con dei sottocomandi che hanno i loro parametri
+  //ho deciso di rinominare i parametri della riga di comando in "argomenti"
   TMBCmdLine = record
+  private const
+    //Estensione per il file con la lista dei parametri
+    //(vedi TMBCommandLine.SaveToFile)
+    ARGUMENT_LIST_EXTENSION = '.ale';
   private
     //Lista dei parametri, quando viene caricata da un file. Questa aggiunta è
     //stata fatta per supportare il passaggio dei parametri quando si implementa
     //il pattern Singleton. In questo caso, la seconda istanza dell'applicazione
     //salva i suoi parametri in un file temporaneo, con SaveToFile, e poi la
     //prima istanza li legge con LoadFromFile
-    class var FParamsList: TStringDynArray;
-    class var FParamsMode: TMBCmdParamsMode;
+    class var FArgumentsList: TStringDynArray;
+    class var FArgumentsMode: TMBCmdArgumentsMode;
 
     class constructor Create;
     //Getter/Setter per le proprietà
     class function GetCount: Integer; static;
-    class function GetParam(Index: Integer): String; static;
-    class function GetHasParams: Boolean; static;
-    class function GetParamsMode: TMBCmdParamsMode; static;
-    class procedure SetParamsMode(Value: TMBCmdParamsMode); static;
+    class function GetArgument(Index: Integer): String; static;
+    class function GetHasArguments: Boolean; static;
+    class function GetArgumentsMode: TMBCmdArgumentsMode; static;
+    class procedure SetArgumentsMode(Value: TMBCmdArgumentsMode); static;
     //Utilità
-    class function GetParamsPath(FileName: TFileName): TFileName; static;
+    class function GetArgumentsPath(FileName: TFileName): TFileName; static;
   public
     class procedure SaveToFile(FileName: TFileName); static;
     class procedure LoadFromFile(FileName: TFileName); static;
@@ -54,9 +56,10 @@ type
       overload; static;
 
     class property Count: Integer read GetCount;
-    class property Param[Index: Integer]: String read GetParam;
-    class property HasParams: Boolean read GetHasParams;
-    class property ParamsMode: TMBCmdParamsMode read GetParamsMode write SetParamsMode;
+    class property Argument[Index: Integer]: String read GetArgument;
+    class property HasArguments: Boolean read GetHasArguments;
+    class property ArgumentsMode: TMBCmdArgumentsMode read GetArgumentsMode
+      write SetArgumentsMode;
   end;
 
   //Un oggetto per implementare la gestione dei numeri pseudocasuali.
@@ -128,107 +131,107 @@ uses
 
 const
   //Eccezioni
-  INVALID_PARAMSMODE = 'ParamsMode non valido';
+  INVALID_ARGUMENTSMODE = 'ArgumentsMode non valido';
 
 { TMBCommandLine }
 
 class constructor TMBCmdLine.Create;
 begin
   //Inizializza i campi statici
-  FParamsList:=nil;
-  FParamsMode:=pmCommandLine
+  FArgumentsList:=nil;
+  FArgumentsMode:=amCommandLine
 end;
 
 class function TMBCmdLine.GetCount: Integer;
 begin
-  case ParamsMode of
-    pmCommandLine: Result:=ParamCount;
-    pmLoaded: Result:=Length(FParamsList)
+  case ArgumentsMode of
+    amCommandLine: Result:=ParamCount;
+    amLoaded: Result:=Length(FArgumentsList)
   else
-    raise EMBCommandLine.Create(INVALID_PARAMSMODE);
+    raise EMBCommandLine.Create(INVALID_ARGUMENTSMODE);
   end;
 end;
 
-class function TMBCmdLine.GetHasParams: Boolean;
+class function TMBCmdLine.GetHasArguments: Boolean;
 begin
   Result:=GetCount>0
 end;
 
-class function TMBCmdLine.GetParam(Index: Integer): String;
+class function TMBCmdLine.GetArgument(Index: Integer): String;
 begin
   if Index=0 then
   Result:=ParamStr(0)
   else
-    case ParamsMode of
-      pmCommandLine: Result:=ParamStr(Index);
-      pmLoaded: Result:=FParamsList[Index-1]
+    case ArgumentsMode of
+      amCommandLine: Result:=ParamStr(Index);
+      amLoaded: Result:=FArgumentsList[Index-1]
     else
-      raise EMBCommandLine.Create(INVALID_PARAMSMODE);
+      raise EMBCommandLine.Create(INVALID_ARGUMENTSMODE);
     end;
 end;
 
-class function TMBCmdLine.GetParamsMode: TMBCmdParamsMode;
+class function TMBCmdLine.GetArgumentsMode: TMBCmdArgumentsMode;
 begin
-  Result:=FParamsMode
+  Result:=FArgumentsMode
 end;
 
-class function TMBCmdLine.GetParamsPath(FileName: TFileName): TFileName;
+class function TMBCmdLine.GetArgumentsPath(FileName: TFileName): TFileName;
 var
   TempDir: TFileName;
 begin
   TempDir:=GetEnvironmentVariable('TEMP');
   Result:=TPath.Combine(TempDir,FileName.Name);
-  Result:=FileName.ChangeExt(PARAMS_LIST_EXT)
+  Result:=FileName.ChangeExt(ARGUMENT_LIST_EXTENSION)
 end;
 
 class procedure TMBCmdLine.LoadFromFile(FileName: TFileName);
 var
   I: Integer;
-  Params: TStringList;
+  Arguments: TStringList;
 begin
-  FileName:=GetParamsPath(FileName);
+  FileName:=GetArgumentsPath(FileName);
   if FileName.Exists then
   begin
-    Params:=TStringList.Create;
+    Arguments:=TStringList.Create;
     try
-      Params.LoadFromFile(FileName);
-      if Params.Count>0 then
+      Arguments.LoadFromFile(FileName);
+      if Arguments.Count>0 then
       begin
-        SetLength(FParamsList,Params.Count);
-        for I:=0 to Params.Count-1 do
-          FParamsList[I]:=Params[I];
-        ParamsMode:=pmLoaded;
+        SetLength(FArgumentsList,Arguments.Count);
+        for I:=0 to Arguments.Count-1 do
+          FArgumentsList[I]:=Arguments[I];
+        ArgumentsMode:=amLoaded;
         System.SysUtils.DeleteFile(FileName)
       end;
     finally
-      Params.Free
+      Arguments.Free
     end;
   end
   else
-    ParamsMode:=pmCommandLine
+    ArgumentsMode:=amCommandLine
 end;
 
 class procedure TMBCmdLine.SaveToFile(FileName: TFileName);
 var
   I: Integer;
-  Params: TStringList;
+  Arguments: TStringList;
 begin
   if Count>0 then
   begin
-    Params:=TStringList.Create;
+    Arguments:=TStringList.Create;
     try
       for I:=1 to Count do
-        Params.Add(Param[I]);
-      Params.SaveToFile(GetParamsPath(FileName))
+        Arguments.Add(Argument[I]);
+      Arguments.SaveToFile(GetArgumentsPath(FileName))
     finally
-      Params.Free
+      Arguments.Free
     end
   end
 end;
 
-class procedure TMBCmdLine.SetParamsMode(Value: TMBCmdParamsMode);
+class procedure TMBCmdLine.SetArgumentsMode(Value: TMBCmdArgumentsMode);
 begin
-  FParamsMode:=Value
+  FArgumentsMode:=Value
 end;
 
 class function TMBCmdLine.ToArray(aStart, aLength: Integer): TStringDynArray;
@@ -245,7 +248,7 @@ begin
   //Ora facciamo l'array
   SetLength(Result,aLength);
   for Index:=aStart to aStart+aLength-1 do
-    Result[Index-aStart]:=Param[Index]
+    Result[Index-aStart]:=Argument[Index]
 end;
 
 class function TMBCmdLine.ToArray(aStart: Integer): TStringDynArray;
