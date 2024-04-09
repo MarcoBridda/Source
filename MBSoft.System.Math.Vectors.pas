@@ -9,7 +9,8 @@ interface
 
 uses
   System.Types,
-  System.Math.Vectors;
+  System.Math.Vectors,
+  MBSoft.System;
 
 type
   //Un record helper per il tipo TPolygon per aggiungere e togliere punti
@@ -26,6 +27,9 @@ type
     //Vera se la variabile contiene almeno 2 elementi (almeno una linea)
     function IsPolyline: Boolean;
   end;
+
+const
+  LIB_VERSION: TProductFileVersion = (Major: 1; Minor: 0; Build: 0; Release: 0);
 
 implementation
 
