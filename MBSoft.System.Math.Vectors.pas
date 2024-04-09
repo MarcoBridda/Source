@@ -32,18 +32,9 @@ implementation
 { TPolygonHelper }
 
 procedure TPolygonHelper.Add(const Point: TPointF);
-var
-  MaxI: Integer;
 begin
-  MaxI:=High(Self);
-
-  if (Length(Self)=0) or (Self[MaxI]<>Point) then
-  begin
-    Inc(MaxI);
-    SetLength(Self,MaxI+1);
-    Self[MaxI]:=Point
-  end;
-
+  if (Length(Self)=0) or (Self[High(Self)]<>Point) then
+    Self:=Self+[Point]
 end;
 
 procedure TPolygonHelper.Clear;
