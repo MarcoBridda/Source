@@ -56,9 +56,8 @@ implementation
 procedure TPolygonHelper.Add(const Point: TPointF);
 begin
   if IsEmpty or IsOpened and (Self[High(Self)]<>Point) then
-    Self:=Self+[Point];
-
-  if IsClosed and (Self[High(Self)-1]<>Point) then
+    Self:=Self+[Point]
+  else if IsClosed and (Self[High(Self)-1]<>Point) then
   begin
     Self[High(Self)]:=Point;
     Close
@@ -78,7 +77,10 @@ end;
 
 function TPolygonHelper.IsClosed: Boolean;
 begin
-  Result:=IsPolyline and (Self[Low(Self)] = Self[High(Self)])
+  if Length(Self) in [0..2] then
+    Result:=false
+  else
+    Result:=(Self[Low(Self)] = Self[High(Self)])
 end;
 
 function TPolygonHelper.IsEmpty: Boolean;
@@ -102,7 +104,13 @@ end;
 
 function TPolygonHelper.IsOpened: Boolean;
 begin
-  Result:=IsPolyline and (Self[Low(Self)] <> Self[High(Self)])
+  case Length(Self) of
+    0: Result:=false;
+    1,
+    2: Result:=true;
+  else
+    Result:=Self[Low(Self)] <> Self[High(Self)]
+  end;
 end;
 
 function TPolygonHelper.IsPolyline: Boolean;
