@@ -10,6 +10,7 @@ interface
 uses
   System.Types,
   System.Math.Vectors,
+  System.Generics.Collections,
   MBSoft.System;
 
 type
@@ -26,6 +27,11 @@ type
 
     //Vera se la variabile contiene almeno 2 elementi (almeno una linea)
     function IsPolyline: Boolean;
+  end;
+
+  TPolygonList = class(TList<TPolygon>)
+  public
+    function Add(const Value: TPolygon): Integer;
   end;
 
 const
@@ -54,6 +60,13 @@ end;
 function TPolygonHelper.IsPolyline: Boolean;
 begin
   Result:=Length(Self)>=2;
+end;
+
+{ TPolygonList }
+
+function TPolygonList.Add(const Value: TPolygon): Integer;
+begin
+  inherited Add(Value)
 end;
 
 end.
