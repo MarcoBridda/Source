@@ -22,11 +22,20 @@ type
     //Aggiunge un punto alla fine del poligono solo se non è uguale al precedente
     procedure Add(const Point: TPointF);
 
+    //Chiude la polilinea aggiungendo un punto alla fine, coincidente con il primo
+    procedure Close;
+
     //Vera se la variabile non contiene elementi
     function IsEmpty: Boolean;
 
     //Vera se la variabile contiene almeno 2 elementi (almeno una linea)
     function IsPolyline: Boolean;
+
+    //Vera se la polilinea è chiusa (l'ultimo punto coincide con il primo)
+    function IsClosed: Boolean;
+
+    //Vera se la polilinea è aperta
+    function IsOpened: Boolean;
   end;
 
   TPolygonList = class(TList<TPolygon>)
@@ -43,8 +52,14 @@ implementation
 
 procedure TPolygonHelper.Add(const Point: TPointF);
 begin
-  if (Length(Self)=0) or (Self[High(Self)]<>Point) then
-    Self:=Self+[Point]
+  if IsEmpty or IsOpened and (Self[High(Self)]<>Point) then
+    Self:=Self+[Point];
+
+  if IsClosed and (Self[High(Self)-1]<>Point) then
+  begin
+    Self[High(Self)]:=Point;
+    Close
+  end;
 end;
 
 procedure TPolygonHelper.Clear;
@@ -52,9 +67,25 @@ begin
   SetLength(Self,0);
 end;
 
+procedure TPolygonHelper.Close;
+begin
+  if IsOpened then
+    Add(Self[low(Self)])
+end;
+
+function TPolygonHelper.IsClosed: Boolean;
+begin
+  Result:=IsPolyline and (Self[Low(Self)] = Self[High(Self)])
+end;
+
 function TPolygonHelper.IsEmpty: Boolean;
 begin
   Result:=Length(Self)=0
+end;
+
+function TPolygonHelper.IsOpened: Boolean;
+begin
+  Result:=IsPolyline and (Self[Low(Self)] <> Self[High(Self)])
 end;
 
 function TPolygonHelper.IsPolyline: Boolean;
