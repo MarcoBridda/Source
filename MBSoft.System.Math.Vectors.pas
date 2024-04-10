@@ -36,6 +36,9 @@ type
 
     //Vera se la polilinea è aperta
     function IsOpened: Boolean;
+
+    //Vera se questa polilinea è uguale a quella passata come argomento
+    function IsEqual(aPolygon: TPolygon): Boolean;
   end;
 
   TPolygonList = class(TList<TPolygon>)
@@ -81,6 +84,20 @@ end;
 function TPolygonHelper.IsEmpty: Boolean;
 begin
   Result:=Length(Self)=0
+end;
+
+function TPolygonHelper.IsEqual(aPolygon: TPolygon): Boolean;
+var
+  I: Integer;
+begin
+  Result:=Length(Self)=Length(aPolygon);
+
+  I:=Low(Self);
+  while Result and (I<=High(Self)) do
+  begin
+    Result:=Self[I] = aPolygon[I];
+    Inc(I)
+  end;
 end;
 
 function TPolygonHelper.IsOpened: Boolean;
