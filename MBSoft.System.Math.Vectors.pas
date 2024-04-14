@@ -122,10 +122,12 @@ end;
 
 function TPolygonList.Add(const Value: TPolygon): Integer;
 begin
-  if (Count=0) or not Last.IsEqual(Value) then
-    Result:=inherited Add(Value)
-  else
-    Result:=Count-1
+  if Count>0 then
+    for var Poly: TPolygon in Self do
+      if Poly.IsEqual(Value) then
+        Exit(Count-1);
+
+  Result:=inherited Add(Value)
 end;
 
 end.
