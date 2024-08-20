@@ -16,9 +16,12 @@ type
   private const
     LOOPBACK_NET  = $7F000000;
     LOOPBACK_MASK = $FF000000;
+    LOOPBACK_IP   = $7F000001;
   private
     FValue: Cardinal;
   public
+    class function GetRandomIP: TIPv4; static;
+
     class operator Implicit(const Value: string): TIPv4;
     class operator Implicit(Value: TIPv4): string;
 
@@ -26,9 +29,18 @@ type
     function ToString: string;
 
     function IsLocalhost: Boolean;
+
+    procedure RandomInit;
+
+    //Per ragioni tecniche espongo il valore interno, anche se si ragiona meglio
+    //con la versione stringa
+    property Value: Cardinal read FValue write FValue;
   end;
 
 implementation
+
+uses
+  System.Math;
 
 { TIPv4 }
 
@@ -39,7 +51,7 @@ var
   B: Byte;
 begin
   if Value.ToLower = 'localhost' then
-    FromString('127.0.0.1')
+    FValue:=LOOPBACK_IP
   else
   begin
     Part:=Value.Split(['.']);
@@ -53,6 +65,11 @@ begin
   end
 end;
 
+class function TIPv4.GetRandomIP: TIPv4;
+begin
+  Result.Value:=Cardinal(RandomRange(Integer.MinValue, Integer.MaxValue))
+end;
+
 class operator TIPv4.Implicit(Value: TIPv4): string;
 begin
   Result:=Value.ToString;
@@ -61,6 +78,11 @@ end;
 function TIPv4.IsLocalhost: Boolean;
 begin
   Result:=(FValue and LOOPBACK_MASK) = LOOPBACK_NET
+end;
+
+procedure TIPv4.RandomInit;
+begin
+  Self:=TIPv4.GetRandomIP
 end;
 
 class operator TIPv4.Implicit(const Value: string): TIPv4;
