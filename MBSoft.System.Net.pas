@@ -13,6 +13,9 @@ uses
 type
   //Un indirizzo IP versione 4 bytes
   TIPv4 = record
+  private const
+    LOOPBACK_NET  = $7F000000;
+    LOOPBACK_MASK = $FF000000;
   private
     FValue: Cardinal;
   public
@@ -21,6 +24,8 @@ type
 
     procedure FromString(const Value: string);
     function ToString: string;
+
+    function IsLocalhost: Boolean;
   end;
 
 implementation
@@ -33,19 +38,29 @@ var
   I: Cardinal;
   B: Byte;
 begin
-  Part:=Value.Split(['.']);
-  FValue:=0;
-  for I:=0 to 3 do
+  if Value.ToLower = 'localhost' then
+    FromString('127.0.0.1')
+  else
   begin
-    FValue:=(FValue shl $8);
-    if (I<=High(Part)) and(Byte.TryParse(Part[I], B)) then
-      Inc(FValue,B);
-  end;
+    Part:=Value.Split(['.']);
+    FValue:=0;
+    for I:=0 to 3 do
+    begin
+      FValue:=(FValue shl $8);
+      if (I<=High(Part)) and(Byte.TryParse(Part[I], B)) then
+        Inc(FValue,B);
+    end
+  end
 end;
 
 class operator TIPv4.Implicit(Value: TIPv4): string;
 begin
   Result:=Value.ToString;
+end;
+
+function TIPv4.IsLocalhost: Boolean;
+begin
+  Result:=(FValue and LOOPBACK_MASK) = LOOPBACK_NET
 end;
 
 class operator TIPv4.Implicit(const Value: string): TIPv4;
