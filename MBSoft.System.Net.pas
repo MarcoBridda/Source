@@ -8,7 +8,7 @@ unit MBSoft.System.Net;
 interface
 
 uses
-  System.SysUtils;
+  System.SysUtils, MBSoft.System;
 
 type
   //Un indirizzo IP versione 4 bytes
@@ -36,6 +36,9 @@ type
     //con la versione stringa
     property Value: Cardinal read FValue write FValue;
   end;
+
+const
+  LIB_VERSION: TProductFileVersion = (Major: 1; Minor: 0; Build: 0; Release: 0);
 
 implementation
 
